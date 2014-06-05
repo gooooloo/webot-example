@@ -3,6 +3,11 @@ var should = require('should');
 var token = process.env.WX_TOKEN || 'keyboardcat123';
 var token2 = process.env.WX_TOKEN_2 || 'weixinToken2';
 var port = process.env.PORT || 3000;
+var infoOriginal = {
+  sp: 'webot',
+  user: 'client',
+  type: 'text'
+};
 
 var bootstrap = require('./bootstrap.js');
 var makeRequest = bootstrap.makeRequest;
@@ -27,11 +32,7 @@ describe('wechat2', function(){
   //初始化
   var info = null;
   beforeEach(function(){
-    info = {
-      sp: 'webot',
-      user: 'client',
-      type: 'text'
-    };
+    info = infoOriginal;
   });
 
   //测试文本消息
@@ -51,11 +52,7 @@ describe('wechat1', function(){
   //初始化
   var info = null;
   beforeEach(function(){
-    info = {
-      sp: 'webot',
-      user: 'client',
-      type: 'text'
-    };
+    info = infoOriginal;
   });
 
   //测试文本消息
