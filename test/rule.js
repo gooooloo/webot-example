@@ -39,8 +39,8 @@ describe('wechat1', function() {
   var textReqRes = function(textReq, textInRes, textNotInRes, next) {
     var info = {
       sp: 'webot',
-      user: 'client',
-      type: 'text'
+  user: 'client',
+  type: 'text'
     };
     info.text = textReq;
     sendRequest(info, function(err, json) {
@@ -82,7 +82,7 @@ describe('wechat1', function() {
         var args = this.args;
         return function(done){
           if (args.length == 1) {
-            textReqRes(args[0], args[1], args[2], done);
+            textReqRes(args[0][0], args[0][1], args[0][2], done);
           } else if (args.length > 1) {
             var funcs = [];
             for (var i = 0; i < args.length; i++) {
@@ -105,49 +105,64 @@ describe('wechat1', function() {
     };
 
     var ret = new testCase();
-    ret.args= [];
-    ret.args.push([]);
+    ret.args = [[]];
     ret.args[0][0] = text;
     return ret;
-  };
-
-  var testTextInput = function(message, textReq, textInRes, textNotInRes) {
-    it(message, webot.test.input(textReq).output.match(textInRes).notmatch(textNotInRes).end);
   };
 
   //测试文本消息
   describe('text', function() {
 
     //检测more指令
-    testTextInput('should return more msg', 'more', /指令/);
+    it('should return more msg', webot.test
+      .input('more').output.match(/指令/)
+      .end);
 
-    testTextInput('should pass multi line yaml', '帮助', /，\n/);
+    it('should pass multi line yaml', webot.test
+      .input('帮助').output.match(/，\n/)
+      .end);
 
     //检测who指令
-    testTextInput('should return who msg', 'who', /机器人/);
+    it('should return who msg', webot.test
+      .input('who').output.match(/机器人/)
+      .end);
 
     //检测name指令
-    testTextInput('should return name msg', 'I am a mocha tester', /a mocha tester/);
+    it('should return name msg', webot.test
+      .input('I am a mocha tester').output.match(/a mocha tester/)
+      .end);
 
     //检测time指令
-    testTextInput('should return time msg', '几点了', /时间/);
+    it('should return time msg', webot.test
+        .input('几点了').output.match(/时间/)
+        .end);
 
     //检测不匹配指令
-    testTextInput('should return not_match msg', '#$%^&!@#$', /我太笨了/);
+    it('should return not_match msg', webot.test
+        .input('#$%^&!@#$').output.match(/我太笨了/)
+        .end);
   });
 
   //测试dialog消息
   describe('dialog', function() {
     //检测key指令
-    testTextInput('should return key msg', 'key aaaa', /aaaa/);
+    it('should return key msg', webot.test
+      .input('key aaaa').output.match(/aaaa/)
+      .end);
 
-    testTextInput('should not return as unknown for key input', 'key aaaa', null, /太笨了/);
+    it('should not return as unknown for key input', webot.test
+      .input('key aaaa').output.notmatch(/太笨了/)
+      .end);
 
     //检测hello指令
-    testTextInput('should return hello msg', 'hello', /你好|fine|(how are you)/);
+    it('should return hello msg', webot.test
+      .input('hello').output.match(/你好|fine|(how are you)/)
+      .end);
 
     //检测yaml指令
-    testTextInput('should return yaml msg', 'yaml', /这是一个yaml的object配置/);
+    it('should return yaml msg', webot.test
+      .input('yaml').output.match(/这是一个yaml的object配置/)
+      .end);
   });
 
   describe('qidu', function() {
@@ -196,7 +211,9 @@ describe('wechat1', function() {
         .end);
 
     //检测search指令
-    testTextInput('should return search msg', 's javascript', /百度搜索.*javascript/);
+    it('should return search msg', webot.test
+        .input('s javascript').output.match(/百度搜索.*javascript/)
+        .end);
 
     //检测timeout指令
     it('should pass not timeout', function(done) {
