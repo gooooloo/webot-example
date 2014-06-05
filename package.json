@@ -13,7 +13,8 @@
   "devDependencies": {
     "mocha": "~1.13.0",
     "should": "~2.0.1",
-    "xml2js": "~0.2.8"
+    "xml2js": "~0.2.8",
+    "async": "*"
   },
   "engines": {
     "node" : ">=0.8.0",
