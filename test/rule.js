@@ -57,31 +57,13 @@ describe('wechat1', function(){
     itText('should return who msg', 'who' , /机器人/);
 
     //检测name指令
-    it('should return name msg', function(done){
-      info.text = 'I am a mocha tester';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /a mocha tester/);
-        done();
-      });
-    });
+    itText('should return name msg', 'I am a mocha tester', /a mocha tester/);
 
     //检测time指令
-    it('should return time msg', function(done){
-      info.text = '几点了';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /时间/);
-        done();
-      });
-    });
+    itText('should return time msg', '几点了', /时间/);
 
     //检测不匹配指令
-    it('should return not_match msg', function(done){
-      info.text = '#$%^&!@#$';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /我太笨了/);
-        done();
-      });
-    });
+    itText('should return not_match msg', '#$%^&!@#$', /我太笨了/);
   });
 
   //测试dialog消息
