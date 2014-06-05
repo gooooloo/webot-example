@@ -72,9 +72,7 @@ describe('wechat1', function() {
       },
 
       input : function (text) {
-        var elem = [];
-        elem.push(text);
-        this.args.push(elem);
+        this.args.push([text]);
         return this;
       },
 
@@ -105,8 +103,7 @@ describe('wechat1', function() {
     };
 
     var ret = new testCase();
-    ret.args = [[]];
-    ret.args[0][0] = text;
+    ret.args = [[text]];
     return ret;
   };
 
