@@ -10,7 +10,7 @@ var sendRequest = makeRequest('http://localhost:' + port + '/wechat', token);
 var app = require('../app.js');
 
 //公用检测指令
-var detect = function(info, err, json, content){
+var detect = function(info, err, json, content, noContent){
   should.exist(info);
   should.not.exist(err);
   should.exist(json);
@@ -18,6 +18,9 @@ var detect = function(info, err, json, content){
   if(content){
     json.should.have.property('Content');
     json.Content.should.match(content);
+  }
+  if(noContent){
+    json.Content.should.not.match(noContent);
   }
 };
 
@@ -69,14 +72,9 @@ describe('wechat1', function(){
   //测试dialog消息
   describe('dialog', function(){
     //检测key指令
-    it('should return key msg', function(done){
-      info.text = 'key aaaa';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /aaaa/);
-        json.Content.should.not.match(/太笨了/);
-        done();
-      });
-    });
+    itText('should return key msg', 'key aaaa', /aaaa/);
+
+    itText('should not return as unknown for key input', 'key aaaa', null, /太笨了/);
 
     //检测hello指令
     itText('should return hello msg', 'hello', /你好|fine|(how are you)/);
