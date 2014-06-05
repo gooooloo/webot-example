@@ -32,33 +32,29 @@ describe('wechat1', function(){
     };
   });
 
+  var textReqRes = function(textReq, textInRes, done){
+    info.text = textReq;
+    sendRequest(info, function(err, json){
+      detect(info, err, json, textInRes);
+      if (done){ done(); }
+    });
+  };
+
+  var itText = function(description, textReq, textInRes){
+    it(description, function(done){
+      textReqRes(textReq, textInRes, done);
+    });
+  };
+
   //测试文本消息
   describe('text', function(){
     //检测more指令
-    it('should return more msg', function(done){
-      info.text = 'more';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /指令/ );
-        done();
-      });
-    });
+    itText('should return more msg', 'more', /指令/);
 
-    it('should pass multi line yaml', function(done){
-      info.text = '帮助';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /，\n/ );
-        done();
-      });
-    });
+    itText('should pass multi line yaml', '帮助', /，\n/);
 
     //检测who指令
-    it('should return who msg', function(done){
-      info.text = 'who';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /机器人/);
-        done();
-      });
-    });
+    itText('should return who msg', 'who' , /机器人/);
 
     //检测name指令
     it('should return name msg', function(done){
