@@ -122,25 +122,11 @@ describe('wechat1', function() {
         ['4', /答案是/]);
 
     //检测game指令
-    it('should return game-found msg', function(done) {
-        info.text = 'game 1';
-        sendRequest(info, function(err, json) {
-            detect(info, err, json, /游戏/);
-            info.text = '2';
-            sendRequest(info, function(err, json) {
-                detect(info, err, json, /再猜/);
-                info.text = '3';
-                sendRequest(info, function(err, json) {
-                    detect(info, err, json, /再猜/);
-                    info.text = '1';
-                    sendRequest(info, function(err, json) {
-                        detect(info, err, json, /聪明/);
-                        done();
-                    });
-                });
-            });
-        });
-    });
+    itTextSeries('should return game-found msg',
+        ['game 1', /游戏/],
+        ['2', /再猜/],
+        ['3', /再猜/],
+        ['1', /聪明/]);
 
     //检测suggest_keyword指令
     it('should return keyword correction accepted result.', function(done) {
