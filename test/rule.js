@@ -166,14 +166,6 @@ describe('wechat1', function() {
       .end);
   });
 
-  describe('qidu', function() {
-    it('should pass guess sex', webot.test
-      .input('你是男人还是女人').output.should.match(/猜猜看/)
-      .input('哈哈').output.should.match(/还猜不猜嘛/)
-      .input('男的').output.should.match(/是的/)
-      .end);
-  });
-
   //测试wait
   describe('wait', function() {
     //检测sex指令
