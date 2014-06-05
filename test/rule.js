@@ -35,17 +35,17 @@ describe('wechat1', function() {
     };
   });
 
-  var textReqRes = function(textReq, textInRes, done) {
+  var textReqRes = function(textReq, textInRes, textNotInRes, done) {
     info.text = textReq;
     sendRequest(info, function(err, json) {
-      detect(info, err, json, textInRes);
+      detect(info, err, json, textInRes, textNotInRes);
       if (done) { done(); }
     });
   };
 
-  var itText = function(description, textReq, textInRes) {
+  var itText = function(description, textReq, textInRes, textNotInRes) {
     it(description, function(done) {
-      textReqRes(textReq, textInRes, done);
+      textReqRes(textReq, textInRes, textNotInRes, done);
     });
   };
 
