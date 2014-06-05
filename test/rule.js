@@ -44,13 +44,13 @@ describe('wechat1', function() {
     });
   };
 
-  var itText = function(message, textReq, textInRes, textNotInRes) {
+  var testTextInput = function(message, textReq, textInRes, textNotInRes) {
     it(message, function(done) {
       textReqRes(textReq, textInRes, textNotInRes, done);
     });
   };
 
-  var itTextSeries = function() {
+  var testTextInputSeries = function() {
     var args = arguments;
 
     it(args[0], function(done) {
@@ -75,71 +75,71 @@ describe('wechat1', function() {
   //测试文本消息
   describe('text', function() {
     //检测more指令
-    itText('should return more msg', 'more', /指令/);
+    testTextInput('should return more msg', 'more', /指令/);
 
-    itText('should pass multi line yaml', '帮助', /，\n/);
+    testTextInput('should pass multi line yaml', '帮助', /，\n/);
 
     //检测who指令
-    itText('should return who msg', 'who' , /机器人/);
+    testTextInput('should return who msg', 'who' , /机器人/);
 
     //检测name指令
-    itText('should return name msg', 'I am a mocha tester', /a mocha tester/);
+    testTextInput('should return name msg', 'I am a mocha tester', /a mocha tester/);
 
     //检测time指令
-    itText('should return time msg', '几点了', /时间/);
+    testTextInput('should return time msg', '几点了', /时间/);
 
     //检测不匹配指令
-    itText('should return not_match msg', '#$%^&!@#$', /我太笨了/);
+    testTextInput('should return not_match msg', '#$%^&!@#$', /我太笨了/);
   });
 
   //测试dialog消息
   describe('dialog', function() {
     //检测key指令
-    itText('should return key msg', 'key aaaa', /aaaa/);
+    testTextInput('should return key msg', 'key aaaa', /aaaa/);
 
-    itText('should not return as unknown for key input', 'key aaaa', null, /太笨了/);
+    testTextInput('should not return as unknown for key input', 'key aaaa', null, /太笨了/);
 
     //检测hello指令
-    itText('should return hello msg', 'hello', /你好|fine|(how are you)/);
+    testTextInput('should return hello msg', 'hello', /你好|fine|(how are you)/);
 
     //检测yaml指令
-    itText('should return yaml msg', 'yaml', /这是一个yaml的object配置/);
+    testTextInput('should return yaml msg', 'yaml', /这是一个yaml的object配置/);
   });
 
   //测试wait
   describe('wait', function() {
     //检测sex指令
-    itTextSeries('should pass guess sex',
+    testTextInputSeries('should pass guess sex',
       ['你是男人还是女人' , /猜猜看/],
       ['哈哈', /还猜不猜嘛/],
       ['男的', /是的/]);
 
     //检测game指令
-    itTextSeries('should pass game-no-found',
+    testTextInputSeries('should pass game-no-found',
       ['game 1', /游戏/],
       ['2',/再猜/],
       ['3', /再猜/],
       ['4', /答案是/]);
 
     //检测game指令
-    itTextSeries('should return game-found msg',
+    testTextInputSeries('should return game-found msg',
       ['game 1', /游戏/],
       ['2', /再猜/],
       ['3', /再猜/],
       ['1', /聪明/]);
 
     //检测suggest_keyword指令
-    itTextSeries('should return keyword correction accepted result.',
+    testTextInputSeries('should return keyword correction accepted result.',
       ['s nde', /拼写错误.*nodejs/],
       ['y', /百度搜索.*nodejs/]);
 
     //检测suggest_keyword指令
-    itTextSeries('should return refused keyword correction result.',
+    testTextInputSeries('should return refused keyword correction result.',
       ['s nde', /拼写错误.*nodejs/],
       ['n', /百度搜索.*nde/]);
 
     //检测search指令
-    itText('should return search msg', 's javascript' , /百度搜索.*javascript/);
+    testTextInput('should return search msg', 's javascript' , /百度搜索.*javascript/);
 
     //检测timeout指令
     it('should pass not timeout', function(done) {
@@ -171,7 +171,7 @@ describe('wechat1', function() {
       });
     });
 
-    itTextSeries('should handle list',
+    testTextInputSeries('should handle list',
       ['ok webot', /可用指令/],
       ['2', /请选择人名/],
       ['3', /请输入/],
