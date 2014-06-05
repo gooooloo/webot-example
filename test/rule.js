@@ -79,22 +79,10 @@ describe('wechat1', function(){
     });
 
     //检测hello指令
-    it('should return hello msg', function(done){
-      info.text = 'hello';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /你好|fine|(how are you)/);
-        done();
-      });
-    });
+    itText('should return hello msg', 'hello', /你好|fine|(how are you)/);
 
     //检测yaml指令
-    it('should return yaml msg', function(done){
-      info.text = 'yaml';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /这是一个yaml的object配置/);
-        done();
-      });
-    });
+    itText('should return yaml msg', 'yaml', /这是一个yaml的object配置/);
   });
 
   //测试wait
@@ -188,13 +176,7 @@ describe('wechat1', function(){
     });
 
     //检测search指令
-    it('should return search msg', function(done){
-      info.text = 's javascript';
-      sendRequest(info, function(err, json){
-        detect(info, err, json, /百度搜索.*javascript/);
-        done();
-      });
-    });
+    itText('should return search msg', 's javascript' , /百度搜索.*javascript/);
 
     //检测timeout指令
     it('should pass not timeout', function(done){
