@@ -148,40 +148,32 @@ describe('wechat1', function(){
         .end);
 
     //检测timeout指令
-    it('should pass not timeout', function(done) {
-      info.text = 'timeout';
-      sendRequest(info, function(err, json) {
-        detect(info, err, json, /请等待/);
-        setTimeout(function() {
-          info.text = 'Hehe...';
-          sendRequest(info, function(err, json) {
-            detect(info, err, json, new RegExp('输入了: ' + info.text));
-            done();
-          });
-        }, 2000);
-      });
-    });
+    it('should pass not timeout', iotest
+        .input('timeout').output.should.match(/请等待/)
+        .timeout(2000)
+        .input('Hehe...').output.should.match(new RegExp('输入了: Hehe...'))
+        .end);
 
     //检测timeout指令
-    it('should return timeout msg', function(done) {
-      info.text = 'timeout';
-      sendRequest(info, function(err, json) {
-        detect(info, err, json, /请等待/);
-        setTimeout(function() {
-          info.text = 'timeout ok';
-          sendRequest(info, function(err, json) {
-            detect(info, err, json, /超时/);
-            done();
-          });
-        }, 5100);
-      });
-    });
+    it('should return timeout msg', iotest
+        .input('timeout').output.should.match(/请等待/)
+        .timeout(5100)
+        .input('Hehe...').output.should.match(/超时/)
+        .end);
 
     it('should handle list', iotest
         .input('ok webot').output.should.match(/可用指令/)
         .input('2').output.should.match(/请选择人名/)
         .input('3').output.should.match(/请输入/)
         .input('David').output.should.match(/输入了 David/)
+        .end);
+  });
+
+  describe('qidu', function() {
+    it('should return timeout msg', iotest
+        .input('timeout').output.should.match(/请等待/)
+        .timeout(5100)
+        .input('Hehe...').output.should.match(/超时/)
         .end);
   });
 

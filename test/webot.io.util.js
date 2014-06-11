@@ -23,7 +23,7 @@ webot.test = function(url, token){
       }
     };
 
-    var textReqRes = function(textReq, textInRes, textNotInRes, next) {
+    var textReqRes = function(textReq, textInRes, textNotInRes, next, timeOutOfNext) {
       var info = {
         sp: 'webot',
         user: 'client',
@@ -32,7 +32,13 @@ webot.test = function(url, token){
       info.text = textReq;
       sendRequest(info, function(err, json) {
         detect(info, err, json, textInRes, textNotInRes);
-        if (next) { next(); }
+        if (next) {
+          if (timeOutOfNext) {
+            setTimeout(next, timeOutOfNext);
+          } else {
+            next();
+          }
+        }
       });
     }
 
@@ -63,21 +69,27 @@ webot.test = function(url, token){
         return this;
       },
 
+      timeout : function (timeoutMs) {
+        if (this.args.length > 0) {
+          this.args[this.args.length - 1][3] = timeoutMs;
+        }
+        return this;
+      },
+
       get end() {
         var args = this.args;
         return function(done){
           if (args.length == 1) {
-            textReqRes(args[0][0], args[0][1], args[0][2], done);
+            textReqRes(args[0][0], args[0][1], args[0][2], done, args[0][3]);
           } else if (args.length > 1) {
             var funcs = [];
             for (var i = 0; i < args.length; i++) {
               var func = function(k) {
-                // have to save 'i' value for later execution,
-                // we need to write it in this way.
+                // have to save 'i' value for later execution.
                 return function(callback) {
                   var arg = args[k];
                   var next = function(){ callback(null); };
-                  textReqRes(arg[0], arg[1], arg[2], next);
+                  textReqRes(arg[0], arg[1], arg[2], next, arg[3]);
                 };
               }(i);
               funcs.push(func);
