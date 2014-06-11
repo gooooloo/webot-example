@@ -7,9 +7,9 @@ var port = process.env.PORT || 3000;
 var bootstrap = require('./bootstrap.js');
 var makeRequest = bootstrap.makeRequest;
 var sendRequest = makeRequest('http://localhost:' + port + '/wechat', token);
-var sendRequest2 = makeRequest('http://localhost:' + port + '/wechat_2', token2);
-
 var webot = require('./webot.io.util');
+var iotest = webot.test('http://localhost:' + port + '/wechat', token);
+var iotest2 = webot.test('http://localhost:' + port + '/wechat_2', token2);
 
 var app = require('../app.js');
 
@@ -26,26 +26,15 @@ var detect = function(info, err, json, content){
 };
 
 describe('wechat2', function(){
-  //初始化
-  var info = null;
-  beforeEach(function(){
-    info = {
-      sp: 'webot',
-    user: 'client',
-    type: 'text'
-    };
-  });
 
   //测试文本消息
   describe('text', function(){
+
     //检测more指令
-    it('should return hi', function(done){
-      info.text = 'hello';
-      sendRequest2(info, function(err, json){
-        detect(info, err, json, /^hi.$/);
-        done();
-      });
-    });
+    it('should return hi', iotest2
+      .input('hello').output.should.match(/^hi.$/)
+      .end);
+
   });
 });
 
@@ -60,7 +49,6 @@ describe('wechat1', function(){
     };
   });
 
-  var iotest = webot.test('http://localhost:' + port + '/wechat', token);
 
   //测试文本消息
   describe('text', function() {
