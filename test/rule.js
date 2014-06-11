@@ -169,14 +169,6 @@ describe('wechat1', function(){
         .end);
   });
 
-  describe('qidu', function() {
-    it('should return timeout msg', iotest
-        .input('timeout').output.should.match(/请等待/)
-        .timeout(5100)
-        .input('Hehe...').output.should.match(/超时/)
-        .end);
-  });
-
   //测试地理位置
   describe('location', function() {
     //检测check_location指令
