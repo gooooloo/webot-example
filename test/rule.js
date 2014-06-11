@@ -49,7 +49,6 @@ describe('wechat1', function(){
     };
   });
 
-
   //测试文本消息
   describe('text', function() {
 
