@@ -1,221 +1,257 @@
 var should = require('should');
-var async = require('async');
 
 var token = process.env.WX_TOKEN || 'keyboardcat123';
+var token2 = process.env.WX_TOKEN_2 || 'weixinToken2';
 var port = process.env.PORT || 3000;
 
 var bootstrap = require('./bootstrap.js');
 var makeRequest = bootstrap.makeRequest;
 var sendRequest = makeRequest('http://localhost:' + port + '/wechat', token);
+var sendRequest2 = makeRequest('http://localhost:' + port + '/wechat_2', token2);
 
 var app = require('../app.js');
 
 //公用检测指令
-var detect = function(info, err, json, content, noContent) {
+var detect = function(info, err, json, content){
   should.exist(info);
   should.not.exist(err);
   should.exist(json);
   json.should.have.type('object');
-  if (content) {
+  if(content){
     json.should.have.property('Content');
     json.Content.should.match(content);
   }
-  if (noContent) {
-    json.Content.should.not.match(noContent);
-  }
 };
 
-describe('wechat1', function() {
+describe('wechat2', function(){
   //初始化
   var info = null;
-  beforeEach(function() {
+  beforeEach(function(){
     info = {
       sp: 'webot',
-    user: 'client',
-    type: 'text'
+      user: 'client',
+      type: 'text'
     };
   });
 
-  var textReqRes = function(textReq, textInRes, textNotInRes, next) {
-    var info = {
-      sp: 'webot',
-  user: 'client',
-  type: 'text'
-    };
-    info.text = textReq;
-    sendRequest(info, function(err, json) {
-      detect(info, err, json, textInRes, textNotInRes);
-      if (next) { next(); }
+  //测试文本消息
+  describe('text', function(){
+    //检测more指令
+    it('should return hi', function(done){
+      info.text = 'hello';
+      sendRequest2(info, function(err, json){
+        detect(info, err, json, /^hi.$/);
+        done();
+      });
     });
-  }
+  });
+});
 
-  var webot = function(){};
-  webot.test = function(){};
-  webot.test.input = function(text){
-
-    var testCase = function(){};
-
-    testCase.prototype = {
-
-      get output() {
-        return this;
-      },
-
-      get should() {
-        return this;
-      },
-
-      match : function (text) {
-        this.args[this.args.length - 1][1] = text;
-        return this;
-      },
-
-      notmatch : function (text) {
-        this.args[this.args.length - 1][2] = text;
-        return this;
-      },
-
-      input : function (text) {
-        this.args.push([text]);
-        return this;
-      },
-
-      get end() {
-        var args = this.args;
-        return function(done){
-          if (args.length == 1) {
-            textReqRes(args[0][0], args[0][1], args[0][2], done);
-          } else if (args.length > 1) {
-            var funcs = [];
-            for (var i = 0; i < args.length; i++) {
-              var func = function(k) {
-                // have to save 'i' value for later execution,
-                // we need to write it in this way.
-                return function(callback) {
-                  var arg = args[k];
-                  var next = function(){ callback(null); };
-                  textReqRes(arg[0], arg[1], arg[2], next);
-                };
-              }(i);
-              funcs.push(func);
-            }
-
-            async.series(funcs, function(err, result){ done(); });
-          }
-        };
-      }
+describe('wechat1', function(){
+  //初始化
+  var info = null;
+  beforeEach(function(){
+    info = {
+      sp: 'webot',
+      user: 'client',
+      type: 'text'
     };
-
-    var ret = new testCase();
-    ret.args = [[text]];
-    return ret;
-  };
+  });
 
   //测试文本消息
-  describe('text', function() {
-
+  describe('text', function(){
     //检测more指令
-    it('should return more msg', webot.test
-      .input('more').output.should.match(/指令/)
-      .end);
+    it('should return more msg', function(done){
+      info.text = 'more';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /指令/ );
+        done();
+      });
+    });
 
-    it('should pass multi line yaml', webot.test
-      .input('帮助').output.should.match(/，\n/)
-      .end);
+    it('should pass multi line yaml', function(done){
+      info.text = '帮助';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /，\n/ );
+        done();
+      });
+    });
 
     //检测who指令
-    it('should return who msg', webot.test
-      .input('who').output.should.match(/机器人/)
-      .end);
+    it('should return who msg', function(done){
+      info.text = 'who';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /机器人/);
+        done();
+      });
+    });
 
     //检测name指令
-    it('should return name msg', webot.test
-      .input('I am a mocha tester').output.should.match(/a mocha tester/)
-      .end);
+    it('should return name msg', function(done){
+      info.text = 'I am a mocha tester';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /a mocha tester/);
+        done();
+      });
+    });
 
     //检测time指令
-    it('should return time msg', webot.test
-        .input('几点了').output.should.match(/时间/)
-        .end);
+    it('should return time msg', function(done){
+      info.text = '几点了';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /时间/);
+        done();
+      });
+    });
 
     //检测不匹配指令
-    it('should return not_match msg', webot.test
-        .input('#$%^&!@#$').output.should.match(/我太笨了/)
-        .end);
+    it('should return not_match msg', function(done){
+      info.text = '#$%^&!@#$';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /我太笨了/);
+        done();
+      });
+    });
   });
 
   //测试dialog消息
-  describe('dialog', function() {
+  describe('dialog', function(){
     //检测key指令
-    it('should return key msg', webot.test
-      .input('key aaaa').output.should.match(/aaaa/)
-      .end);
-
-    it('should not return as unknown for key input', webot.test
-      .input('key aaaa').output.should.notmatch(/太笨了/)
-      .end);
+    it('should return key msg', function(done){
+      info.text = 'key aaaa';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /aaaa/);
+        json.Content.should.not.match(/太笨了/);
+        done();
+      });
+    });
 
     //检测hello指令
-    it('should return hello msg', webot.test
-      .input('hello').output.should.match(/你好|fine|(how are you)/)
-      .end);
+    it('should return hello msg', function(done){
+      info.text = 'hello';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /你好|fine|(how are you)/);
+        done();
+      });
+    });
 
     //检测yaml指令
-    it('should return yaml msg', webot.test
-      .input('yaml').output.should.match(/这是一个yaml的object配置/)
-      .end);
+    it('should return yaml msg', function(done){
+      info.text = 'yaml';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /这是一个yaml的object配置/);
+        done();
+      });
+    });
   });
 
   //测试wait
-  describe('wait', function() {
+  describe('wait', function(){
     //检测sex指令
-    it('should pass guess sex', webot.test
-      .input('你是男人还是女人').output.should.match(/猜猜看/)
-      .input('哈哈').output.should.match(/还猜不猜嘛/)
-      .input('男的').output.should.match(/是的/)
-      .end);
+    it('should pass guess sex', function(done){
+      info.text = '你是男人还是女人';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /猜猜看/);
+        //下次回复
+        info.text = '哈哈';
+        sendRequest(info, function(err, json){
+          detect(info, err, json, /还猜不猜嘛/);
+          info.text = '男的';
+          sendRequest(info, function(err, json){
+            detect(info, err, json, /是的/);
+            done();
+          });
+        });
+      });
+    });
 
     //检测game指令
-    it('should pass game-no-found', webot.test
-      .input('game 1').output.should.match(/游戏/)
-      .input('2').output.should.match(/再猜/)
-      .input('3').output.should.match(/再猜/)
-      .input('4').output.should.match(/答案是/)
-      .end);
+    it('should pass game-no-found', function(done){
+      info.text = 'game 1';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /游戏/);
+        info.text = '2';
+        sendRequest(info, function(err, json){
+          detect(info, err, json, /再猜/);
+          info.text = '3';
+          sendRequest(info, function(err, json){
+            detect(info, err, json, /再猜/);
+            info.text = '4';
+            sendRequest(info, function(err, json){
+              detect(info, err, json, /答案是/);
+              done();
+            });
+          });
+        });
+      });
+    });
 
     //检测game指令
-    it('should return game-found msg', webot.test
-      .input('game 1').output.should.match(/游戏/)
-      .input('2').output.should.match(/再猜/)
-      .input('3').output.should.match(/再猜/)
-      .input('1').output.should.match(/聪明/)
-      .end);
+    it('should return game-found msg', function(done){
+      info.text = 'game 1';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /游戏/);
+        info.text = '2';
+        sendRequest(info, function(err, json){
+          detect(info, err, json, /再猜/);
+          info.text = '3';
+          sendRequest(info, function(err, json){
+            detect(info, err, json, /再猜/);
+            info.text = '1';
+            sendRequest(info, function(err, json){
+              detect(info, err, json, /聪明/);
+              done();
+            });
+          });
+        });
+      });
+    });
 
     //检测suggest_keyword指令
-    it('should return keyword correction accepted result.', webot.test
-        .input('s nde').output.should.match(/拼写错误.*nodejs/)
-        .input('y').output.should.match(/百度搜索.*nodejs/)
-        .end);
+    it('should return keyword correction accepted result.', function(done){
+      info.text = 's nde';
+      sendRequest(info, function(err, json){
+        detect(info, err, json,/拼写错误.*nodejs/);
+        //下次回复
+        info.text = 'y';
+        sendRequest(info, function(err, json){
+          detect(info, err, json, /百度搜索.*nodejs/);
+          done();
+        });
+      });
+    });
 
     //检测suggest_keyword指令
-    it('should return refused keyword correction result.', webot.test
-        .input('s nde').output.should.match(/拼写错误.*nodejs/)
-        .input('n').output.should.match(/百度搜索.*nde/)
-        .end);
+    it('should return refused keyword correction result.', function(done){
+      info.text = 's nde';
+      sendRequest(info, function(err, json){
+        detect(info, err, json,/拼写错误.*nodejs/);
+        //下次回复
+        info.text = 'n';
+        sendRequest(info, function(err, json){
+          detect(info, err, json, /百度搜索.*nde/);
+          done();
+        });
+      });
+    });
 
     //检测search指令
-    it('should return search msg', webot.test
-        .input('s javascript').output.should.match(/百度搜索.*javascript/)
-        .end);
+    it('should return search msg', function(done){
+      info.text = 's javascript';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /百度搜索.*javascript/);
+        done();
+      });
+    });
 
     //检测timeout指令
-    it('should pass not timeout', function(done) {
+    it('should pass not timeout', function(done){
       info.text = 'timeout';
-      sendRequest(info, function(err, json) {
+      sendRequest(info, function(err, json){
         detect(info, err, json, /请等待/);
-        setTimeout(function() {
+        setTimeout(function(){
           info.text = 'Hehe...';
-          sendRequest(info, function(err, json) {
+          sendRequest(info, function(err, json){
             detect(info, err, json, new RegExp('输入了: ' + info.text));
             done();
           });
@@ -224,13 +260,13 @@ describe('wechat1', function() {
     });
 
     //检测timeout指令
-    it('should return timeout msg', function(done) {
+    it('should return timeout msg', function(done){
       info.text = 'timeout';
-      sendRequest(info, function(err, json) {
+      sendRequest(info, function(err, json){
         detect(info, err, json, /请等待/);
-        setTimeout(function() {
+        setTimeout(function(){
           info.text = 'timeout ok';
-          sendRequest(info, function(err, json) {
+          sendRequest(info, function(err, json){
             detect(info, err, json, /超时/);
             done();
           });
@@ -238,24 +274,37 @@ describe('wechat1', function() {
       });
     });
 
-    it('should handle list', webot.test
-        .input('ok webot').output.should.match(/可用指令/)
-        .input('2').output.should.match(/请选择人名/)
-        .input('3').output.should.match(/请输入/)
-        .input('David').output.should.match(/输入了 David/)
-        .end);
+    it('should handle list', function(done) {
+      info.text = 'ok webot';
+      sendRequest(info, function(err, json){
+        detect(info, err, json, /可用指令/);
+        info.text = '2';
+        sendRequest(info, function(err, json){
+          detect(info, err, json, /请选择人名/);
+          info.text = '3';
+          sendRequest(info, function(err, json){
+            detect(info, err, json, /请输入/);
+            info.text = 'David';
+            sendRequest(info, function(err, json){
+              detect(info, err, json, /输入了 David/);
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   //测试地理位置
-  describe('location', function() {
+  describe('location', function(){
     //检测check_location指令
-    it('should return check_location msg', function(done) {
+    it('should return check_location msg', function(done){
       info.type = 'location';
       info.xPos = '23.08';
       info.yPos = '113.24';
       info.scale = '12';
       info.label = '广州市 某某地点';
-      sendRequest(info, function(err, json) {
+      sendRequest(info, function(err, json){
         detect(info, err, json, /广州/);
         done();
       });
@@ -263,12 +312,12 @@ describe('wechat1', function() {
   });
 
   //测试图片
-  describe('image', function() {
+  describe('image', function(){
     //检测check_location指令
-    it('should return good hash', function(done) {
+    it('should return good hash', function(done){
       info.type = 'image';
       info.pic = 'http://www.baidu.com/img/baidu_sylogo1.gif';
-      sendRequest(info, function(err, json) {
+      sendRequest(info, function(err, json){
         detect(info, err, json, /图片/);
         json.Content.should.include('你的图片');
         done()
@@ -277,13 +326,13 @@ describe('wechat1', function() {
   });
 
   //测试图文消息
-  describe('news', function() {
+  describe('news', function(){
     //检测首次收听指令
-    it('should return subscribe message.', function(done) {
+    it('should return subscribe message.', function(done){
       info.type = 'event';
       info.event = 'subscribe';
       info.eventKey = '';
-      sendRequest(info, function(err, json) {
+      sendRequest(info, function(err, json){
         detect(info, err, json);
         json.should.have.property('MsgType', 'news');
         json.Articles.item.should.have.length(json.ArticleCount);
@@ -293,10 +342,10 @@ describe('wechat1', function() {
     });
 
     //检测image指令
-    it('should return news msg', function(done) {
+    it('should return news msg', function(done){
       info.type = 'text';
       info.text = 'news';
-      sendRequest(info, function(err, json) {
+      sendRequest(info, function(err, json){
         detect(info, err, json);
         json.should.have.property('MsgType', 'news');
         json.Articles.item.should.have.length(json.ArticleCount);
