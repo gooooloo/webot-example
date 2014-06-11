@@ -31,7 +31,7 @@ describe('wechat2', function(){
   describe('text', function(){
 
     //检测more指令
-    it('should return hi', iotest2
+    it('should return hi', iotest2.begin
       .input('hello').output.should.match(/^hi.$/)
       .end);
 
@@ -54,31 +54,31 @@ describe('wechat1', function(){
   describe('text', function() {
 
     //检测more指令
-    it('should return more msg', iotest
+    it('should return more msg', iotest.begin
       .input('more').output.should.match(/指令/)
       .end);
 
-    it('should pass multi line yaml', iotest
+    it('should pass multi line yaml', iotest.begin
       .input('帮助').output.should.match(/，\n/)
       .end);
 
     //检测who指令
-    it('should return who msg', iotest
+    it('should return who msg', iotest.begin
       .input('who').output.should.match(/机器人/)
       .end);
 
     //检测name指令
-    it('should return name msg', iotest
+    it('should return name msg', iotest.begin
       .input('I am a mocha tester').output.should.match(/a mocha tester/)
       .end);
 
     //检测time指令
-    it('should return time msg', iotest
+    it('should return time msg', iotest.begin
         .input('几点了').output.should.match(/时间/)
         .end);
 
     //检测不匹配指令
-    it('should return not_match msg', iotest
+    it('should return not_match msg', iotest.begin
         .input('#$%^&!@#$').output.should.match(/我太笨了/)
         .end);
   });
@@ -86,21 +86,21 @@ describe('wechat1', function(){
   //测试dialog消息
   describe('dialog', function() {
     //检测key指令
-    it('should return key msg', iotest
+    it('should return key msg', iotest.begin
       .input('key aaaa').output.should.match(/aaaa/)
       .end);
 
-    it('should not return as unknown for key input', iotest
+    it('should not return as unknown for key input', iotest.begin
       .input('key aaaa').output.should.notmatch(/太笨了/)
       .end);
 
     //检测hello指令
-    it('should return hello msg', iotest
+    it('should return hello msg', iotest.begin
       .input('hello').output.should.match(/你好|fine|(how are you)/)
       .end);
 
     //检测yaml指令
-    it('should return yaml msg', iotest
+    it('should return yaml msg', iotest.begin
       .input('yaml').output.should.match(/这是一个yaml的object配置/)
       .end);
   });
@@ -108,14 +108,14 @@ describe('wechat1', function(){
   //测试wait
   describe('wait', function() {
     //检测sex指令
-    it('should pass guess sex', iotest
+    it('should pass guess sex', iotest.begin
       .input('你是男人还是女人').output.should.match(/猜猜看/)
       .input('哈哈').output.should.match(/还猜不猜嘛/)
       .input('男的').output.should.match(/是的/)
       .end);
 
     //检测game指令
-    it('should pass game-no-found', iotest
+    it('should pass game-no-found', iotest.begin
       .input('game 1').output.should.match(/游戏/)
       .input('2').output.should.match(/再猜/)
       .input('3').output.should.match(/再猜/)
@@ -123,7 +123,7 @@ describe('wechat1', function(){
       .end);
 
     //检测game指令
-    it('should return game-found msg', iotest
+    it('should return game-found msg', iotest.begin
       .input('game 1').output.should.match(/游戏/)
       .input('2').output.should.match(/再猜/)
       .input('3').output.should.match(/再猜/)
@@ -131,37 +131,37 @@ describe('wechat1', function(){
       .end);
 
     //检测suggest_keyword指令
-    it('should return keyword correction accepted result.', iotest
+    it('should return keyword correction accepted result.', iotest.begin
         .input('s nde').output.should.match(/拼写错误.*nodejs/)
         .input('y').output.should.match(/百度搜索.*nodejs/)
         .end);
 
     //检测suggest_keyword指令
-    it('should return refused keyword correction result.', iotest
+    it('should return refused keyword correction result.', iotest.begin
         .input('s nde').output.should.match(/拼写错误.*nodejs/)
         .input('n').output.should.match(/百度搜索.*nde/)
         .end);
 
     //检测search指令
-    it('should return search msg', iotest
+    it('should return search msg', iotest.begin
         .input('s javascript').output.should.match(/百度搜索.*javascript/)
         .end);
 
     //检测timeout指令
-    it('should pass not timeout', iotest
+    it('should pass not timeout', iotest.begin
         .input('timeout').output.should.match(/请等待/)
         .timeout(2000)
         .input('Hehe...').output.should.match(new RegExp('输入了: Hehe...'))
         .end);
 
     //检测timeout指令
-    it('should return timeout msg', iotest
+    it('should return timeout msg', iotest.begin
         .input('timeout').output.should.match(/请等待/)
         .timeout(5100)
         .input('Hehe...').output.should.match(/超时/)
         .end);
 
-    it('should handle list', iotest
+    it('should handle list', iotest.begin
         .input('ok webot').output.should.match(/可用指令/)
         .input('2').output.should.match(/请选择人名/)
         .input('3').output.should.match(/请输入/)
