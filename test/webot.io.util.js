@@ -3,12 +3,35 @@ var async = require('async');
 var bootstrap = require('./bootstrap.js');
 var makeRequest = bootstrap.makeRequest;
 
-var testCase = function(textReqRes){
-  this.args = [];
-  this.textReqRes = textReqRes;
+// IOCases is designed to make writing test codes easier for
+// verifying output given a input. Typically codes would be
+// like this:
+//
+//   new IOCases(ioHandler)
+//     .input('****').output.should.match('****')
+//     .end;
+//
+// or for multiple Input/Output pairs like this:
+//
+//   new IOCases(ioHandler)
+//     .input('****').output.should.match('****')
+//     .input('****').output.should.match('****')
+//     .end;
+//
+// or if you want to set time out before 2 Input/Output pairs:
+//
+//   new IOCases(ioHandler)
+//     .input('****').output.should.match('****')
+//     .timeout(5000)
+//     .input('****').output.should.match('****')
+//     .end;
+//
+var IOCases = function(ioHandler){
+  this.ioCases = [];
+  this.ioHandler = ioHandler;
 };
 
-testCase.prototype = {
+IOCases.prototype = {
 
   get output() {
     return this;
@@ -19,42 +42,45 @@ testCase.prototype = {
   },
 
   match : function (text) {
-    this.args[this.args.length - 1][1] = text;
+    this.ioCases[this.ioCases.length - 1]['match'] = text;
     return this;
   },
 
   notmatch : function (text) {
-    this.args[this.args.length - 1][2] = text;
+    this.ioCases[this.ioCases.length - 1]['nomatch'] = text;
     return this;
   },
 
   input : function (text) {
-    this.args.push([text]);
+    var io = {};
+    io['input'] = text;
+    this.ioCases.push(io);
     return this;
   },
 
   timeout : function (timeoutMs) {
-    if (this.args.length > 0) {
-      this.args[this.args.length - 1][3] = timeoutMs;
+    if (this.ioCases.length > 0) {
+      this.ioCases[this.ioCases.length - 1]['timeout'] = timeoutMs;
     }
     return this;
   },
 
   get end() {
-    var args = this.args;
-    var textReqRes = this.textReqRes;
+    var ioCases = this.ioCases;
+    var ioHandler = this.ioHandler;
     return function(done){
-      if (args.length == 1) {
-        textReqRes(args[0][0], args[0][1], args[0][2], done, args[0][3]);
-      } else if (args.length > 1) {
+      if (ioCases.length == 1) {
+        ioCases[0]['next'] = done;
+	ioHandler(ioCases[0]);
+      } else if (ioCases.length > 1) {
         var funcs = [];
-        for (var i = 0; i < args.length; i++) {
+        for (var i = 0; i < ioCases.length; i++) {
           var func = function(k) {
             // have to save 'i' value for later execution.
             return function(callback) {
-              var arg = args[k];
-              var next = function(){ callback(null); };
-              textReqRes(arg[0], arg[1], arg[2], next, arg[3]);
+              var arg = ioCases[k];
+              arg['next'] = function(){ callback(null); };
+              ioHandler(arg);
             };
           }(i);
           funcs.push(func);
@@ -82,27 +108,28 @@ webot.test = function(url, token){
 
   var sendRequest = makeRequest(url, token);
 
-  var textReqRes = function(textReq, textInRes, textNotInRes, next, timeOutOfNext) {
+  var ioHandler = function(ioCase) {
     var info = {
       sp: 'webot',
       user: 'client',
-      type: 'text'
+      type: 'text',
+      text: ioCase['input']
     };
-    info.text = textReq;
     sendRequest(info, function(err, json) {
-      detect(info, err, json, textInRes, textNotInRes);
-      if (next) {
-        if (timeOutOfNext) {
-          setTimeout(next, timeOutOfNext);
+      detect(info, err, json, ioCase['match'], ioCase['nomatch']);
+      if (ioCase['next']) {
+        if (ioCase['timeout']) {
+          setTimeout(ioCase['next'], ioCase['timeout']);
         } else {
-          next();
+          ioCase['next']();
         }
       }
     });
   }
 
   return {
-    get begin() { return new testCase(textReqRes); }
+    get begin() { return new IOCases(ioHandler); }
   };
 };
+
 module.exports = exports = webot;
